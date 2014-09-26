@@ -13,14 +13,7 @@ def filter(prefix, key)
   key.start_with?(prefix)
 end
 
-def log msg
-  open('/tmp/temp.txt', 'a') do |f|
-    f << msg << "\n"
-  end
-end
-
 def completions(op, prefix)
-  log "op: #{op}, prefix:#{prefix}" 
   prefix = '' if prefix.nil?
   if node_ops.include? op
     type = 'node'
