@@ -16,7 +16,7 @@ module Etcd
     attr_reader :client
 
     def initialize(opts={})
-      @client = Etcd.client(opts)
+      @client = opts[:client] || Etcd.client(opts)
     end
 
     def node_name(prefix)
@@ -40,11 +40,7 @@ module Etcd
 
     def matches(prefix)
       node = client.get(node_name(prefix)).node
-      if (node.directory?)
-        nodes = [node] + node.children
-      else
-        nodes = [node] 
-      end
+      nodes = [node] + node.children
       nodes = filter(nodes, prefix)
 
       if nodes.size == 1  

@@ -16,7 +16,7 @@ def completions(op, prefix)
   end
 
   matches.map do |m|
-    m.directory? ? m.key + '/' : m.key
+    (m.directory? && m.key != '/') ? m.key + '/' : m.key
   end
 end
 
