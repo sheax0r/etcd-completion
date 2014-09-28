@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |spec|
   spec.name          = "etcd-completion"
-  spec.version       = "0.0.3" 
+  spec.version       = "0.0.4"
   spec.authors       = ["Michael Shea"]
   spec.email         = ["mike.shea@gmail.com"]
   spec.summary       = %q{Utility for etcd autocompletion}
