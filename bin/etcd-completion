@@ -1,65 +1,23 @@
 #!/usr/bin/env ruby
-require 'etcd'
-
-def dir_ops 
-  %w'mkdir rmdir ls setdir updatedir'
-end
-
-def node_ops
-  %w'mk rm get set update watch'
-end
+require 'etcd-completion'
 
 def filter(prefix, key)
   key.start_with?(prefix)
 end
 
 def completions(op, prefix)
-  prefix = '' if prefix.nil?
-  if node_ops.include? op
-    type = 'node'
-  elsif dir_ops.include? op
-    type = 'dir'
-  else
-    fail "Usage: etcdctl.rb <operation> <prefix>"
+  prefix = '/' if prefix.nil?
+
+  completion = Etcd::Completion.new
+  matches = completion.matches(prefix)
+
+  if Etcd::Operation.new(op).directory_only?
+    matches = matches.select{|m| m.directory?}
   end
 
-  client = Etcd.client
-
-  if (prefix == '/') 
-    node_name = '/'
-  else
-    index = prefix.rindex('/')
-    if index.nil?
-      node_name = '/'
-    else
-      node_name = prefix[0, prefix.rindex('/')+1]
-    end
+  matches.map do |m|
+    (m.directory? && m.key != '/') ? m.key + '/' : m.key
   end
-
-  node = client.get(node_name)
-  if node.directory?
-    children = node.children
-    case type
-    when 'dir' 
-      result = children.select{|c|c.directory? && filter(prefix, c.key)}.map do |c|
-        c.key + '/'
-      end
-    when 'node' 
-      result = children.select{|c|filter(prefix, c.key)}.map do |c|
-        c.directory? ? (c.key + '/') : (c.key)
-      end
-    end 
-  else
-    result = [filter(prefix, node.key)]
-  end
-
-  if (result.size == 1)
-    new_prefix = result[0]
-    if new_prefix.end_with?('/')
-      result << completions(op, new_prefix) 
-    end
-  end
-  result
 end
 
 puts completions(ARGV[0], ARGV[1]).join(' ') 
